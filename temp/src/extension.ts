@@ -4,8 +4,11 @@ import * as vscode from 'vscode';
 import fs from 'fs';
 import path from 'path';
 
-import { parse_command } from './parse_code/parse_command';
+import { onChangeDiagnostics, fullScan } from './chunk-algo';
+import { generate_wiki } from './wiki/wiki_javascript';
 import * as puppeteer from 'puppeteer';
+import exp from 'constants';
+import { create_graph_cmd } from './wiki/wiki_python';
 
 // Define a global variable to store the decoration type
 let decorationType = vscode.window.createTextEditorDecorationType({
@@ -13,6 +16,45 @@ let decorationType = vscode.window.createTextEditorDecorationType({
 		overviewRulerLane: vscode.OverviewRulerLane.Right,
         backgroundColor: 'rgba(142, 13, 255, 0.3)',
 });
+
+// Global variables to store the elapsed time
+let hours = 0;
+let minutes = 0;
+let seconds = 0;
+let startTime: Date | undefined;
+let intervalId: NodeJS.Timeout | undefined;
+
+// Generate the HTML content for the webview
+export function generateHtmlContent() {
+	return `
+	<!DOCTYPE html>
+	<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<script src="stat_script.js"></script>
+		<title>User Stats</title>
+	</head>
+	<body>
+		<div id="time" style="display: flex; flex-direction: row; flex-wrap: nowrap; min-width: 100%; padding: auto; margin: auto; align-items: center; justify-content: center;">
+			<div style="display: flex; margin: auto; flex-direction: column; justify-content: center; align-items: center;">
+				<h1>${hours} :</h1>
+				HOURS
+			</div>
+			<div style="display: flex; margin: auto; flex-direction: column; justify-content: center; align-items: center;"">
+				<h1>${minutes} :</h1>
+				MINUTES
+			</div>
+			<div style="display: flex; margin: auto; flex-direction: column; justify-content: center; align-items: center;"">
+				<h1>${seconds}</h1>
+				SECONDS
+			</div>
+		</div>
+	</body>
+	</html>
+	`;
+
+}
 
 // Gets the thumbnail image of a website
 export async function getThumbnail(url: string): Promise<string | undefined> {
@@ -60,13 +102,9 @@ export function activate(context: vscode.ExtensionContext) {
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "temp" is now active!.');
 
-	context.subscriptions.push(
-		vscode.commands.registerCommand('extension.openImage', (imgPath) =>
-		{
-			vscode.commands.executeCommand('vscode.open', vscode.Uri.file(imgPath));
-		})
-	);
-
+	//
+	// Hover Provider
+	//
 	vscode.languages.registerHoverProvider('python', {
 		provideHover(document, position, token)
 		{
@@ -75,15 +113,17 @@ export function activate(context: vscode.ExtensionContext) {
 
 			if(workspaceFolder)
 			{
+				// GET chunk id, start, end here
 				let chunk_id = 2;
 				let start_id = 2;
 				let end_id = 8;
 				if (position.line >= start_id && position.line <= end_id)
 				{
-					console.log(position.line)
+					console.log(position.line);
 
 					highlightCodeChunk(start_id, end_id);
 	
+					// GET URL for associated chunk here
 					let url = "https://web-highlights.com/blog/turn-your-website-into-a-beautiful-thumbnail-link-preview/";
 					let thumbnailDataPromise = getThumbnail(url);
 					let markdownContent = '';
@@ -120,24 +160,120 @@ export function activate(context: vscode.ExtensionContext) {
 
 					return {
 						contents: ['Default']
-					}
+					};
 				}
-			
 			}
 		}
 	});
 	// context.subscriptions.push(disposable);
-	let onKeystroke = vscode.workspace.onDidChangeTextDocument((e) => {
-		const changes = e.contentChanges;
-		const start = changes[0].range.start;
-		const text = changes[0].text;
-		console.log(`${start.line} - ${JSON.stringify(text)}`);
-	});
+  	let onDiagnostics = vscode.languages.onDidChangeDiagnostics(onChangeDiagnostics);
+
+  let scan = vscode.commands.registerCommand('temp.scan', () => {
+    fullScan();
+  });
 
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
-    context.subscriptions.push(onKeystroke);
+	context.subscriptions.push(onDiagnostics);
+	context.subscriptions.push(scan);
+
+	//
+	// WebView for productivity statistics
+	//
+
+	// Create a status bar item
+	const statusBarItem = vscode.window.createStatusBarItem(
+	vscode.StatusBarAlignment.Left, // Align the item to the left side of the status bar
+	100 // Priority of the item (lower values come first)
+	);
+
+	// Set the text and tooltip for the status bar item
+	statusBarItem.text = "$(globe) Dashboard";
+	statusBarItem.tooltip = "Open Stats Dashboard";
+
+	// Register a command for the status bar item
+	statusBarItem.command = 'extension.openWebview';
+
+	// Show the status bar item
+	statusBarItem.show();
+
+	// Register a command handler for opening the webview
+	context.subscriptions.push(vscode.commands.registerCommand('extension.openWebview', () => {
+		  // Create and show a new webview panel
+		  const panel = vscode.window.createWebviewPanel(
+			'customWebview', // Unique ID for the webview
+			'User Dashboard', // Title of the panel
+			vscode.ViewColumn.Two, // Desired column for the panel (e.g., ViewColumn.One, ViewColumn.Two)
+			{
+				enableScripts: true // Enable JavaScript in the webview
+			}
+		);
+	
+		panel.webview.html = generateHtmlContent();
+	}
+	));
+
+	//
+	// Session Times
+	//
+
+    function updateSessionTime() {
+        if (startTime) {
+            const currentTime = new Date();
+            const elapsedTime = Math.floor((currentTime.getTime() - startTime.getTime()) / 1000); // Elapsed time in seconds
+
+            // Format elapsed time
+            const lhours = Math.floor(elapsedTime / 3600);
+            const lminutes = Math.floor((elapsedTime % 3600) / 60);
+            const lseconds = elapsedTime % 60;
+
+			hours = lhours;
+			minutes = lminutes;
+			seconds = lseconds;
+
+			console.log(hours, minutes, seconds);
+        }
+	}
+
+	function startSessionTimer() {
+        startTime = new Date();
+        updateSessionTime();
+        // Update elapsed time every second
+        intervalId = setInterval(updateSessionTime, 1000);
+    }
+
+    function stopSessionTimer() {
+        if (intervalId) {
+            clearInterval(intervalId);
+            intervalId = undefined;
+        }
+        startTime = undefined;
+		hours = 0;
+		minutes = 0;
+		seconds = 0;
+    }
+
+	// Start session timer when workspace is opened
+    vscode.workspace.onDidOpenTextDocument(() => {
+        startSessionTimer();
+    });
+
+    // Stop session timer when workspace is closed
+    vscode.workspace.onDidCloseTextDocument(() => {
+        stopSessionTimer();
+    });
+
+	context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders(() => {
+        if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
+            stopSessionTimer();
+        }
+    }));
+
+
+
+	context.subscriptions.push(create_graph_cmd);
+	context.subscriptions.push(generate_wiki);
 
 }
 
