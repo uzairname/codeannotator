@@ -28,187 +28,39 @@
 
     <script>
         // Sample adjacency list
-        const adjacencyList = {
-  "database/cache.ts": ["database/models/all.ts"],
-  "database/client.ts": [
-    "database/cache.ts",
-    "database/models/all.ts",
-    "request/globals.ts",
-    "request/sentry.ts"
-  ],
-  "database/models/all.ts": [
-    "database/models/models/guild_leaderboards.ts",
-    "database/models/models/guilds.ts",
-    "database/models/models/leaderboard_divisions.ts",
-    "database/models/models/leaderboards.ts",
-    "database/models/models/matches.ts",
-    "database/models/models/players.ts",
-    "database/models/models/queue_team.ts",
-    "database/models/models/settings.ts",
-    "database/models/models/users.ts"
-  ],
-  "database/models/models/guild_leaderboards.ts": [
-    "database/client.ts",
-    "database/models/models/guilds.ts",
-    "database/models/models/leaderboards.ts"
-  ],
-  "database/models/models/guilds.ts": [
-    "database/client.ts",
-    "database/models/models/guild_leaderboards.ts",
-    "database/models/models/leaderboards.ts"
-  ],
-  "database/models/models/leaderboard_divisions.ts": [
-    "database/client.ts",
-    "database/models/models/matches.ts",
-    "database/models/models/players.ts"
-  ],
-  "database/models/models/leaderboards.ts": [
-    "database/client.ts",
-    "database/models/models/guild_leaderboards.ts",
-    "database/models/models/leaderboard_divisions.ts"
-  ],
-  "database/models/models/matches.ts": ["database/client.ts"],
-  "database/models/models/players.ts": [
-    "database/client.ts",
-    "database/models/models/leaderboard_divisions.ts",
-    "database/models/models/users.ts"
-  ],
-  "database/models/models/queue_team.ts": ["database/client.ts"],
-  "database/models/models/settings.ts": ["database/client.ts"],
-  "database/models/models/users.ts": ["database/client.ts"],
-  "discord/interactions/respond.ts": [
-    "discord/interactions/types.ts",
-    "discord/interactions/view_helpers.ts",
-    "discord/rest/discord_client.ts",
-    "request/globals.ts"
-  ],
-  "discord/interactions/types.ts": ["discord/interactions/views.ts"],
-  "discord/interactions/view_helpers.ts": [
-    "discord/interactions/respond.ts",
-    "discord/interactions/types.ts",
-    "discord/interactions/views.ts",
-    "discord/rest/discord_client.ts",
-    "request/globals.ts"
-  ],
-  "discord/interactions/views.ts": [
-    "discord/interactions/types.ts",
-    "discord/interactions/view_helpers.ts"
-  ],
-  "discord/rest/bot_client_helpers.ts": ["discord/rest/discord_client.ts", "request/globals.ts"],
-  "discord/rest/discord_client.ts": ["discord/rest/bot_client_helpers.ts", "request/globals.ts"],
-  "main/app.ts": [
-    "database/client.ts",
-    "discord/interactions/types.ts",
-    "discord/rest/discord_client.ts",
-    "main/commands/all_views.ts",
-    "request/globals.ts"
-  ],
-  "main/commands/all_views.ts": [
-    "discord/interactions/respond.ts",
-    "discord/interactions/types.ts",
-    "main/app.ts",
-    "main/commands/help.ts",
-    "main/commands/leaderboards/leaderboards_command.ts",
-    "main/commands/ping.ts",
-    "main/commands/points.ts",
-    "main/commands/queue.ts",
-    "main/commands/restore.ts",
-    "main/commands/settings.ts",
-    "main/commands/start_match.ts",
-    "main/commands/test_cmd.ts",
-    "request/globals.ts"
-  ],
-  "main/commands/help.ts": [
-    "discord/interactions/views.ts",
-    "main/app.ts",
-    "main/ui/message_pieces.ts"
-  ],
-  "main/commands/leaderboards/leaderboards_command.ts": [
-    "discord/interactions/views.ts",
-    "main/app.ts",
-    "main/commands/leaderboards/pages.ts"
-  ],
-  "main/commands/leaderboards/pages.ts": [
-    "discord/interactions/types.ts",
-    "discord/interactions/views.ts",
-    "main/app.ts",
-    "main/commands/leaderboards/leaderboards_command.ts",
-    "main/guilds.ts",
-    "main/leaderboards.ts",
-    "main/ui/message_pieces.ts",
-    "request/globals.ts"
-  ],
-  "main/commands/ping.ts": ["discord/interactions/views.ts", "main/app.ts"],
-  "main/commands/points.ts": [
-    "discord/interactions/views.ts",
-    "main/app.ts",
-    "main/guilds.ts",
-    "main/leaderboards.ts"
-  ],
-  "main/commands/queue.ts": [
-    "discord/interactions/types.ts",
-    "discord/interactions/views.ts",
-    "main/app.ts",
-    "main/queue.ts"
-  ],
-  "main/commands/restore.ts": [
-    "discord/interactions/views.ts",
-    "main/app.ts",
-    "main/guilds.ts",
-    "main/leaderboards.ts"
-  ],
-  "main/commands/settings.ts": ["discord/interactions/views.ts", "main/app.ts", "main/guilds.ts"],
-  "main/commands/start_match.ts": ["discord/interactions/views.ts", "main/app.ts"],
-  "main/commands/test_cmd.ts": ["discord/interactions/views.ts", "main/app.ts"],
-  "main/guilds.ts": ["database/models/all.ts", "main/app.ts", "main/ui/message_pieces.ts"],
-  "main/leaderboards.ts": [
-    "database/client.ts",
-    "database/models/all.ts",
-    "discord/rest/discord_client.ts",
-    "main/app.ts",
-    "main/commands/queue.ts",
-    "main/guilds.ts",
-    "main/ui/message_pieces.ts",
-    "request/globals.ts"
-  ],
-  "main/queue.ts": [
-    "database/client.ts",
-    "database/models/all.ts",
-    "main/app.ts",
-    "main/leaderboards.ts"
-  ],
-  "main/ui/message_pieces.ts": [
-    "discord/rest/bot_client_helpers.ts",
-    "discord/rest/discord_client.ts",
-    "main/app.ts"
-  ],
-  "request/globals.ts": ["request/sentry.ts"],
-  "request/sentry.ts": ["request/globals.ts"]
-};
 
-        // Create nodes and edges arrays
-        const nodes = Object.keys(adjacencyList).map(node => ({ id: node, label: node, size: 150}));
-        const edges = [];
-        Object.keys(adjacencyList).forEach(node => {
-            adjacencyList[node].forEach(neighbor => {
-                edges.push({ from: node, to: neighbor, length: 200, color: {highlight: '#eed9ff'} });
+        fetch('${workspaceFolder}/graph.json')
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                const adjacencyList = data;
+
+                // Create nodes and edges arrays
+                const nodes = Object.keys(adjacencyList).map(node => ({ id: node, label: node, size: 150}));
+                const edges = [];
+                Object.keys(adjacencyList).forEach(node => {
+                    adjacencyList[node].forEach(neighbor => {
+                        edges.push({ from: node, to: neighbor, length: 200, color: {highlight: '#eed9ff'} });
+                    });
+                });
+
+                // Create a network
+                const container = document.getElementById('graph');
+                const data = { nodes: nodes, edges: edges };
+                var options = {
+                    width: (window.innerWidth - 25) + "px",
+                            height: (window.innerHeight - 75) + "px",
+                    nodes: 
+                    {
+                        color:{
+                            background: '#eed9ff',
+                        }
+                    }
+                };
+                const network = new vis.Network(container, data, options);
             });
-        });
 
-        // Create a network
-        const container = document.getElementById('graph');
-        const data = { nodes: nodes, edges: edges };
-        var options = {
-            width: (window.innerWidth - 25) + "px",
-				    height: (window.innerHeight - 75) + "px",
-            nodes: 
-            {
-                color:{
-                    background: '#eed9ff',
-                }
-            }
-          };
-        const network = new vis.Network(container, data, options);
+        
     </script>
 </body>
 </html>
