@@ -5,8 +5,9 @@ import fs from 'fs';
 import path from 'path';
 
 import { onChangeDiagnostics, fullScan } from './chunk-algo';
-import { parse_command } from './parse_code/parse_command';
+import { generate_wiki } from './wiki/wiki_javascript';
 import * as puppeteer from 'puppeteer';
+import { create_graph_cmd } from './wiki/wiki_python';
 
 // Define a global variable to store the decoration type
 let decorationType = vscode.window.createTextEditorDecorationType({
@@ -81,7 +82,7 @@ export function activate(context: vscode.ExtensionContext) {
 				let end_id = 8;
 				if (position.line >= start_id && position.line <= end_id)
 				{
-					console.log(position.line)
+					console.log(position.line);
 
 					//highlightCodeChunk(start_id, end_id);
 	
@@ -121,9 +122,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 					return {
 						contents: ['Default']
-					}
+					};
 				}
-			
 			}
 		}
 	});
@@ -137,8 +137,12 @@ export function activate(context: vscode.ExtensionContext) {
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
-  context.subscriptions.push(onDiagnostics);
+	context.subscriptions.push(onDiagnostics);
   context.subscriptions.push(scan);
+
+	context.subscriptions.push(generate_wiki);
+	context.subscriptions.push(create_graph_cmd);
+
 }
 
 exports.activate = activate;

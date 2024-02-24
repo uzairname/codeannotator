@@ -20,8 +20,16 @@
         "title": "Scan File"
       },
       {
-        "command": "temp.parse",
-        "title": "Parse Code"
+        "command": "temp.scan",
+        "title": "Scan File"
+      },
+      {
+        "command": "temp.wiki-javascript",
+        "title": "Javascript Wiki"
+      },
+      {
+        "command": "temp.wiki-python",
+        "title": "Python Wiki"
       }
     ]
   },
@@ -37,6 +45,7 @@
     "test": "vscode-test"
   },
   "devDependencies": {
+    "@types/madge": "^5.0.3",
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
     "@types/vscode": "^1.86.0",
@@ -51,6 +60,8 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
+    "d3": "^7.8.5",
+    "madge": "^6.1.0",
     "puppeteer": "^22.2.0"
   }
 }
