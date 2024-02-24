@@ -28,7 +28,8 @@ let intervalId: NodeJS.Timeout | undefined;
 // Generate the HTML content for the webview
 export async function generateHtmlContent(workspaceFolder: string) {
 
-	console.log(await fetch(`${workspaceFolder}/graph.json`))
+	const fileContent = fs.readFileSync(`${workspaceFolder}/graph.json`, 'utf-8');
+	const jsonData = JSON.parse(fileContent);
 
 	return `
 	<!DOCTYPE html>
@@ -58,19 +59,20 @@ export async function generateHtmlContent(workspaceFolder: string) {
 		</div>
 
 		<div id="graph" style="min-width: 100%; border: solid; min-height: 100vh;"></div>
+		<div id="test"></div>
 
     <script>
-	fetch('${workspaceFolder}/graph.json')
-	.then(response => response.json())
-	.then(data => {
-		console.log(data);
-		const adjacencyList = data;
+
+	const test = document.getElementById('test');
+	test.innerHTML = "hello";
+
+	jsonData = ${JSON.stringify(jsonData)};
 
 		// Create nodes and edges arrays
-		const nodes = Object.keys(adjacencyList).map(node => ({ id: node, label: node, size: 150}));
+		const nodes = Object.keys(jsonData).map(node => ({ id: node, label: node, size: 150}));
 		const edges = [];
-		Object.keys(adjacencyList).forEach(node => {
-			adjacencyList[node].forEach(neighbor => {
+		Object.keys(jsonData).forEach(node => {
+			jsonData[node].forEach(neighbor => {
 				edges.push({ from: node, to: neighbor, length: 200, color: {highlight: '#eed9ff'} });
 			});
 		});
@@ -89,7 +91,6 @@ export async function generateHtmlContent(workspaceFolder: string) {
 			}
 		};
 		const network = new vis.Network(container, data, options);
-	});
     </script>
 	</body>
 	</html>
@@ -114,6 +115,18 @@ export async function getThumbnail(url: string): Promise<string | undefined> {
     } catch (error) {
         console.error('Error retrieving thumbnail:', error);
         return undefined;
+    }
+}
+
+// Get workspace folder
+// Function to get the file path of the workspace folder
+function getWorkspaceFolderPath(): string | undefined {
+    // Check if there is at least one workspace folder opened
+    if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
+        // Get the file path of the first workspace folder
+        return vscode.workspace.workspaceFolders[0].uri.fsPath;
+    } else {
+        return undefined; // No workspace folder opened
     }
 }
 
@@ -253,14 +266,7 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		);
 
-
-		const x = vscode.window.activeTextEditor?.document.uri;
-		console.log("x", x)
-		if (x) {
-			var workspaceFolder = vscode.workspace.getWorkspaceFolder(x)?.uri.fsPath;
-
-			panel.webview.html = await generateHtmlContent(workspaceFolder!);
-		}
+		panel.webview.html = await generateHtmlContent(getWorkspaceFolderPath()!);
 	
 	}
 	));
