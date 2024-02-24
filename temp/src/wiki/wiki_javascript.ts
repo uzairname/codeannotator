@@ -46,13 +46,6 @@ export let generate_wiki: vscode.Disposable = vscode.commands.registerCommand('t
     var workspaceFolder = vscode.workspace.getWorkspaceFolder(x)?.uri.fsPath;
   }
 
-  // const openFilePathStr = openFilePath?.toString();
-
-  // console.log(process.cwd());
-
-  // // create zip file of the workspace folder
-  // const zip = new JSZip();
-
   if (!openFilePath) {
     return;
   }

@@ -269,6 +269,12 @@ export function activate(context: vscode.ExtensionContext) {
             stopSessionTimer();
         }
     }));
+
+
+
+	context.subscriptions.push(create_graph_cmd);
+	context.subscriptions.push(generate_wiki);
+
 }
 
 exports.activate = activate;
