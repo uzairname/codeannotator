@@ -7,6 +7,14 @@ import path from 'path';
 import { parse_command } from './parse_code/parse_command';
 import * as puppeteer from 'puppeteer';
 
+// Define a global variable to store the decoration type
+let decorationType = vscode.window.createTextEditorDecorationType({
+		overviewRulerColor: 'blue',
+		overviewRulerLane: vscode.OverviewRulerLane.Right,
+        backgroundColor: 'rgba(142, 13, 255, 0.3)',
+});
+
+// Gets the thumbnail image of a website
 export async function getThumbnail(url: string): Promise<string | undefined> {
     try {
         const browser = await puppeteer.launch();
@@ -23,6 +31,24 @@ export async function getThumbnail(url: string): Promise<string | undefined> {
     } catch (error) {
         console.error('Error retrieving thumbnail:', error);
         return undefined;
+    }
+}
+
+// Highlights code chunks
+export function highlightCodeChunk(start: number, end: number) {
+
+    // Get the active text editor
+    const editor = vscode.window.activeTextEditor;
+    if (editor) {
+        // Determine the range of the code chunk to highlight
+        const startLine = start; // Example: line number where the code chunk starts
+        const endLine = end; // Example: line number where the code chunk ends
+        const startPosition = new vscode.Position(startLine, 0);
+        const endPosition = new vscode.Position(endLine, 0);
+        const range = new vscode.Range(startPosition, endPosition);
+
+        // Apply the decoration to the specified range
+        editor.setDecorations(decorationType, [range]);
     }
 }
 
@@ -50,9 +76,13 @@ export function activate(context: vscode.ExtensionContext) {
 			if(workspaceFolder)
 			{
 				let chunk_id = 2;
-				if (position.line === chunk_id)
+				let start_id = 2;
+				let end_id = 8;
+				if (position.line >= start_id && position.line <= end_id)
 				{
-					console.log(position.line);
+					console.log(position.line)
+
+					highlightCodeChunk(start_id, end_id);
 	
 					let url = "https://web-highlights.com/blog/turn-your-website-into-a-beautiful-thumbnail-link-preview/";
 					let thumbnailDataPromise = getThumbnail(url);
@@ -81,7 +111,17 @@ export function activate(context: vscode.ExtensionContext) {
 					});
 
 				}
+				else{
+					const editor = vscode.window.activeTextEditor;
 
+					if(editor){
+						editor.setDecorations(decorationType, []);
+					}
+
+					return {
+						contents: ['Default']
+					}
+				}
 			
 			}
 		}
