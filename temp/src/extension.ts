@@ -195,9 +195,11 @@ export function activate(context: vscode.ExtensionContext) {
 					highlightCodeChunk(start_id, end_id);
 	
 					// GET URL for associated chunk here
-					let url = "https://web-highlights.com/blog/turn-your-website-into-a-beautiful-thumbnail-link-preview/";
-					let thumbnailDataPromise = getThumbnail(url);
+					let urls = ["https://github.com/uzairname/codeannotator", "https://google.com", "https://youtube.com"];
+					let thumbnailDataPromise = getThumbnail(urls[0]);
 					let markdownContent = '';
+					let url2 = "https://google.com";
+					let url3 = "https://youtube.com";
 		
 					return thumbnailDataPromise.then((thumbnailData: string | undefined) =>
 					{
@@ -206,12 +208,22 @@ export function activate(context: vscode.ExtensionContext) {
 							console.log(thumbnailData);
 	
 							markdownContent = [
-								'## URL Preview',
+								`### ${urls[0]}`,
 								'',
 								`![](${thumbnailData})`,
 								'',
-								`[Visit URL](${url})`
+								'### Other Links',
+								`${url2}`,
+								'',
+								`${url3}`,
+								'### Suggested Documentation',
+								// `[Visit URL](${url})`
 							].join('\n');
+
+							for (let i = 1; i < urls.length; i++)
+							{
+								markdownContent += `\n-${urls[i]}`;
+							}
 	
 						}
 
