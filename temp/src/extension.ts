@@ -4,6 +4,8 @@ import * as vscode from 'vscode';
 import fs from 'fs';
 import path from 'path';
 
+import { onChangeDiagnostics, fullScan } from './chunk-algo';
+
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -48,17 +50,17 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 	// context.subscriptions.push(disposable);
-  let onKeystroke = vscode.workspace.onDidChangeTextDocument((e) => {
-    const changes = e.contentChanges;
-	  const start = changes[0].range.start;
-	  const text = changes[0].text;
-    console.log(`${start.line} - ${JSON.stringify(text)}`);
+  let onDiagnostics = vscode.languages.onDidChangeDiagnostics(onChangeDiagnostics);
+
+  let scan = vscode.commands.registerCommand('temp.scan', () => {
+    fullScan()
   });
 
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
-  context.subscriptions.push(onKeystroke);
+  context.subscriptions.push(onDiagnostics);
+  context.subscriptions.push(scan);
 }
 
 exports.activate = activate;
