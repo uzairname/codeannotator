@@ -11,6 +11,7 @@
   ],
   "activationEvents": [
     "onLanguage:python",
+    "onLanguage:javascript",
     "onView:customWebview"
   ],
   "main": "./dist/extension.js",

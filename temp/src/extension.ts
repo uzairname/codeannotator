@@ -35,8 +35,8 @@ export function generateHtmlContent() {
 		<script src="stat_script.js"></script>
 		<title>User Stats</title>
 	</head>
-	<body>
-		<div id="time" style="display: flex; flex-direction: row; flex-wrap: nowrap; min-width: 100%; padding: auto; margin: auto; align-items: center; justify-content: center;">
+	<body style="background-color: #12011f; color: #eed9ff;">
+		<div id="time" style="display: flex; flex-direction: row; flex-wrap: nowrap; min-width: 100%; padding: auto; margin: auto; align-items: center; justify-content: center; border-style: solid; padding: auto; border-radius: 5px;">
 			<div style="display: flex; margin: auto; flex-direction: column; justify-content: center; align-items: center;">
 				<h1>${hours} :</h1>
 				HOURS
@@ -101,6 +101,8 @@ export function activate(context: vscode.ExtensionContext) {
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "temp" is now active!.');
+
+	const supportedLanguages = ['python', 'javascript'];
 
 	//
 	// Hover Provider
