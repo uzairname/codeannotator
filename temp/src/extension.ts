@@ -50,13 +50,13 @@ export function activate(context: vscode.ExtensionContext) {
 			if(workspaceFolder)
 			{
 				let chunk_id = 2;
-				if (position.line == chunk_id)
+				if (position.line === chunk_id)
 				{
-					console.log(position.line)
+					console.log(position.line);
 	
 					let url = "https://web-highlights.com/blog/turn-your-website-into-a-beautiful-thumbnail-link-preview/";
 					let thumbnailDataPromise = getThumbnail(url);
-					let markdownContent = ''
+					let markdownContent = '';
 		
 					return thumbnailDataPromise.then((thumbnailData: string | undefined) =>
 					{
@@ -78,17 +78,10 @@ export function activate(context: vscode.ExtensionContext) {
 						md.isTrusted = true;
 						console.log(md);
 						return new vscode.Hover(md);
-					} else {
-						console.error(`Image not found: ${imgPath}`);
+					});
 
-					}
-					)
 				}
-				else{
-					return {
-						contents: ['Default']
-					}
-				}
+
 			
 			}
 		}
@@ -106,7 +99,6 @@ export function activate(context: vscode.ExtensionContext) {
 	// The commandId parameter must match the command field in package.json
     context.subscriptions.push(onKeystroke);
 
-	context.subscriptions.push(parse_command);
 }
 
 exports.activate = activate;
