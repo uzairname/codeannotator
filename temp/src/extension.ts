@@ -5,6 +5,26 @@ import fs from 'fs';
 import path from 'path';
 
 import { parse_command } from './parse_code/parse_command';
+import * as puppeteer from 'puppeteer';
+
+export async function getThumbnail(url: string): Promise<string | undefined> {
+    try {
+        const browser = await puppeteer.launch();
+        const page = await browser.newPage();
+
+		const [response] = await Promise.all([
+			page.waitForResponse(response => response.url().includes('.png')),
+			page.goto(url)
+		]);
+		const buffer = await response.buffer();
+		await browser.close();
+
+		return 'data:image/png;base64,' + buffer.toString('base64');
+    } catch (error) {
+        console.error('Error retrieving thumbnail:', error);
+        return undefined;
+    }
+}
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -26,44 +46,65 @@ export function activate(context: vscode.ExtensionContext) {
 		{
 			const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
 
-			if (workspaceFolder)
+
+			if(workspaceFolder)
+			{
+				let chunk_id = 2;
+				if (position.line == chunk_id)
 				{
-					const rootPath = workspaceFolder.uri.fsPath;
-					const imgPath = path.join(rootPath, "sample.png");
-
-					if (fs.existsSync(imgPath))
+					console.log(position.line)
+	
+					let url = "https://web-highlights.com/blog/turn-your-website-into-a-beautiful-thumbnail-link-preview/";
+					let thumbnailDataPromise = getThumbnail(url);
+					let markdownContent = ''
+		
+					return thumbnailDataPromise.then((thumbnailData: string | undefined) =>
 					{
-						const imgUri = vscode.Uri.file(imgPath).toString();
+						if(thumbnailData)
+						{
+							console.log(thumbnailData);
+	
+							markdownContent = [
+								'## URL Preview',
+								'',
+								`![](${thumbnailData})`,
+								'',
+								`[Visit URL](${url})`
+							].join('\n');
+	
+						}
 
-						const hoverContent = [
-							'# Image Comments',
-							'',
-							`[Open Image](command:extension.openImage?${encodeURIComponent(JSON.stringify(imgPath))})`,
-							'',
-							`![Image](${imgUri})`,
-						].join('\n');
-
-						const md = new vscode.MarkdownString(hoverContent, true);
+						const md = new vscode.MarkdownString(markdownContent, true);
 						md.isTrusted = true;
+						console.log(md);
 						return new vscode.Hover(md);
 					} else {
 						console.error(`Image not found: ${imgPath}`);
+
+					}
+					)
+				}
+				else{
+					return {
+						contents: ['Default']
 					}
 				}
+			
+			}
 		}
 	});
 	// context.subscriptions.push(disposable);
-  let onKeystroke = vscode.workspace.onDidChangeTextDocument((e) => {
-    const changes = e.contentChanges;
-	  const start = changes[0].range.start;
-	  const text = changes[0].text;
-    console.log(`${start.line} - ${JSON.stringify(text)}`);
-  });
+	let onKeystroke = vscode.workspace.onDidChangeTextDocument((e) => {
+		const changes = e.contentChanges;
+		const start = changes[0].range.start;
+		const text = changes[0].text;
+		console.log(`${start.line} - ${JSON.stringify(text)}`);
+	});
 
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
-  context.subscriptions.push(onKeystroke);
+    context.subscriptions.push(onKeystroke);
 
 	context.subscriptions.push(parse_command);
 }
