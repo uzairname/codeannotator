@@ -254,7 +254,7 @@ export function activate(context: vscode.ExtensionContext) {
 		seconds = 0;
     }
 
-	// Start session timer when workspace is opened
+		// Start session timer when workspace is opened
     vscode.workspace.onDidOpenTextDocument(() => {
         startSessionTimer();
     });
@@ -265,11 +265,10 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
 	context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders(() => {
-        if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
-            stopSessionTimer();
-        }
-    }));
-
+			if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
+					stopSessionTimer();
+			}
+	}));
 
 
 	context.subscriptions.push(create_graph_cmd);
