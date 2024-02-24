@@ -63,9 +63,6 @@ export async function generateHtmlContent(workspaceFolder: string) {
 
     <script>
 
-	const test = document.getElementById('test');
-	test.innerHTML = "hello";
-
 	jsonData = ${JSON.stringify(jsonData)};
 
 		// Create nodes and edges arrays
