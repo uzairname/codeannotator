@@ -27,6 +27,15 @@ function runNpxCommand(command: string, args = [], options = {}) {
 }
 
 
+interface DependencyGraphData {
+  nodes: { id: string }[];
+  links: { source: string, target: string }[];
+}
+
+async function visualizeMadgeOutput(json: Object) {
+
+}
+
 export let generate_wiki: vscode.Disposable = vscode.commands.registerCommand('temp.wiki-javascript', (args) => {
 
   const openFilePath = vscode.window.activeTextEditor?.document.fileName;
@@ -48,33 +57,11 @@ export let generate_wiki: vscode.Disposable = vscode.commands.registerCommand('t
     return;
   }
 
-  madge(openFilePath).then((res) => {
-    console.log((res as any).tree);
-  });
+  const graph_json = madge(openFilePath).then((res) => (res as any).tree);
 
-  // exec(`npx madge --json ${openFilePath} > temp.json`, (error, stdout, stderr) => {
-  //   if (error) {
-  //     console.error(`Error: ${error.message}`);
-  //     return;
-  //   }
-  //   if (stderr) {
-  //     console.error(`stderr: ${stderr}`);
-  //     return;
-  //   }
-  //   console.log(`stdout: ${stdout}`);
+  console.log(graph_json);
 
-  //   const cwd = process.cwd();
-
-  //   // get the temp.json file from the cwd
-  //   const tempJsonPath = `${cwd}/temp.json`;
-  
-  //   console.log("path", tempJsonPath);
-  
-  //   const data = fs.readFileSync(tempJsonPath, 'utf8');
-  
-  //   console.log(data);
-
-  // });
+  // TODO: graph the graph_json
 
 });
 
