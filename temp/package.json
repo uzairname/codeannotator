@@ -45,6 +45,7 @@
     "test": "vscode-test"
   },
   "devDependencies": {
+    "@types/d3": "^7.4.3",
     "@types/madge": "^5.0.3",
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",

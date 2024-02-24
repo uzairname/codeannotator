@@ -131,7 +131,7 @@ export function activate(context: vscode.ExtensionContext) {
   let onDiagnostics = vscode.languages.onDidChangeDiagnostics(onChangeDiagnostics);
 
   let scan = vscode.commands.registerCommand('temp.scan', () => {
-    fullScan()
+    fullScan();
   });
 
 	// The command has been defined in the package.json file
