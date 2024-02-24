@@ -33,10 +33,9 @@ interface DependencyGraphData {
 }
 
 async function visualizeMadgeOutput(json: Object) {
-
 }
 
-export let generate_wiki: vscode.Disposable = vscode.commands.registerCommand('temp.wiki-javascript', (args) => {
+export let generate_wiki: vscode.Disposable = vscode.commands.registerCommand('temp.wiki-javascript', async (args) => {
 
   const openFilePath = vscode.window.activeTextEditor?.document.fileName;
 
@@ -50,11 +49,17 @@ export let generate_wiki: vscode.Disposable = vscode.commands.registerCommand('t
     return;
   }
 
-  const graph_json = madge(openFilePath).then((res) => (res as any).tree);
-
-  console.log(graph_json);
-
-  // TODO: graph the graph_json
+  const graph_json = await madge(openFilePath).then((res) => {
+    const tree = (res as any).tree;
+    console.log(tree);
+    return tree;
+  });
+  // save graph_json to file
+  fs.writeFileSync
+  (
+    `${workspaceFolder}/graph.json`,
+    JSON.stringify(graph_json, null, 2)
+  );
 
 });
 
