@@ -10,7 +10,8 @@
     "Other"
   ],
   "activationEvents": [
-    "onLanguage:python"
+    "onLanguage:python",
+    "onView:customWebview"
   ],
   "main": "./dist/extension.js",
   "contributes": {

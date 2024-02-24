@@ -24,6 +24,8 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
       // Log the new URL of the tab
       console.log("Tab URL updated:", changeInfo.url);
     }
+
+    // Post currently opened URL to the backend
   });
   
   // Initialize the logging upon extension startup
