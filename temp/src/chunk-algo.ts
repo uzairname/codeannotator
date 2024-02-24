@@ -16,8 +16,8 @@ export function fullScan() {
   if(editor == undefined) return;
   const docText = editor.document.getText();
   for(let i = 0;i < editor.document.lineCount;i++) {
-    console.log("ikd");
-    console.log(hashChunk(getChunk(docText, i)));
+    const chunk = getChunk(docText, i);
+    console.log(`${i + 1} -> ${chunk.metadata.start + 1}-${chunk.metadata.end + 1}: ${hashChunk(chunk)}`);
   }
 }
 
@@ -38,6 +38,7 @@ function handleDocumentChange(docText: string, line: number) {
 
 function getChunk(text: string, line: number): Chunk {
   const lines = text.split('\n');
+  
   var t: number = line;
   var b: number = line;
 
@@ -48,6 +49,12 @@ function getChunk(text: string, line: number): Chunk {
   }
 
   let level = (lines[line] == '') ? -1 : checkLevel(lines[line]);
+
+  const scopeStart = lines[line].length != 0 && lines[line][lines[line].length - 1] == ':';
+
+  if(scopeStart) {
+    level += 4;
+  }
 
   function expandUpwards() {
     while(t > 0) {
@@ -94,10 +101,10 @@ function getChunk(text: string, line: number): Chunk {
     }
 
     // include top level scope-starters
-    while(lines[b][lines[b].length - 1] == ':') b--;
+    while((!scopeStart && b == line) && b > 0 && lines[b][lines[b].length - 1] == ':') b--;
   }
 
-  expandUpwards();
+  if(!scopeStart)expandUpwards();
   expandDownwards();
 
   return {metadata: {start: t, end: b}, lines: lines.slice(t, b + 1)};
