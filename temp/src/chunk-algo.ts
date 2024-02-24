@@ -4,12 +4,12 @@ import { createHash } from 'crypto';
 type ChunkMetadata = {
   start: number
   end: number
-}
+};
 
 type Chunk = {
   metadata: ChunkMetadata
   lines: string[]
-}
+};
 
 export function fullScan() {
   const editor = window.activeTextEditor;

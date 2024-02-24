@@ -61,5 +61,6 @@ export let generate_wiki: vscode.Disposable = vscode.commands.registerCommand('t
     JSON.stringify(graph_json, null, 2)
   );
 
+
 });
 

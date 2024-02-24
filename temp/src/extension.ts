@@ -65,14 +65,14 @@ export async function generateHtmlContent(workspaceFolder: string) {
 
 	jsonData = ${JSON.stringify(jsonData)};
 
-		// Create nodes and edges arrays
-		const nodes = Object.keys(jsonData).map(node => ({ id: node, label: node, size: 150}));
-		const edges = [];
-		Object.keys(jsonData).forEach(node => {
-			jsonData[node].forEach(neighbor => {
-				edges.push({ from: node, to: neighbor, length: 200, color: {highlight: '#eed9ff'} });
+			// Create nodes and edges arrays
+			const nodes = Object.keys(jsonData).map(node => ({ id: node, label: node, size: 150}));
+			const edges = [];
+			Object.keys(jsonData).forEach(node => {
+				jsonData[node].forEach(neighbor => {
+					edges.push({ from: node, to: neighbor, length: 200, color: {highlight: '#eed9ff'} });
+				});
 			});
-		});
 
 		// Create a network
 		const container = document.getElementById('graph');
