@@ -6,22 +6,23 @@ const openai = new OpenAI({
 async function main() {
   // Upload the file to OpenAI
     const file = await openai.files.create({
-        file: fs.createReadStream("Q.py"),
+        file: fs.createReadStream("anotherQ.cpp"),
         purpose: "assistants",
       });
       console.log(file);
+      Assistant_ID = "asst_86lLEPIAipeTG1ywPrtfXt0O"
     // Create an assistant
-    const myAssistant = await openai.beta.assistants.create({
-        model: "gpt-4",
-        instructions:
-        "You are a professional code documentor. Given the file, write the documentation for it.",
-      name: "Code Documentor",
-        tools: [{ type: "code_interpreter" }],
-      });
-      console.log("This is the assistant object: ", myAssistant, "\n");
+    // const myAssistant = await openai.beta.assistants.create({
+    //     model: "gpt-4",
+    //     instructions:
+    //     "You are a professional code documentor. Given the file, write the documentation for it. The end of the file should tell you the language.",
+    //   name: "Code Documentor",
+    //     tools: [{ type: "code_interpreter" }],
+    //   });
+    //   console.log("This is the assistant object: ", myAssistant, "\n");
       // Create an assistant file
     const myAssistantFile = await openai.beta.assistants.files.create(
-        myAssistant.id,
+        Assistant_ID,
         {
           file_id: file.id
         }
@@ -43,8 +44,8 @@ async function main() {
       const myRun = await openai.beta.threads.runs.create(
         (thread_id = myThread.id),
         {
-          assistant_id: myAssistant.id,
-          instructions: "Please address the user as lazy.",
+          assistant_id: Assistant_ID,
+          instructions: "Please address the user as lazy. Do not ask any questions.",
         }
       );
       console.log("This is the run object: ", myRun, "\n");
