@@ -16,8 +16,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "temp.helloWorld",
-        "title": "Hello World"
+        "command": "temp.parse",
+        "title": "Parse Code"
       }
     ]
   },

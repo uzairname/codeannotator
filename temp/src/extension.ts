@@ -4,13 +4,15 @@ import * as vscode from 'vscode';
 import fs from 'fs';
 import path from 'path';
 
+import { parse_command } from './parse_code/parse_command';
+
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "temp" is now active!');
+	console.log('Congratulations, your extension "temp" is now active!.');
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('extension.openImage', (imgPath) =>
@@ -23,6 +25,7 @@ export function activate(context: vscode.ExtensionContext) {
 		provideHover(document, position, token)
 		{
 			const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
+
 			if (workspaceFolder)
 				{
 					const rootPath = workspaceFolder.uri.fsPath;
@@ -43,6 +46,8 @@ export function activate(context: vscode.ExtensionContext) {
 						const md = new vscode.MarkdownString(hoverContent, true);
 						md.isTrusted = true;
 						return new vscode.Hover(md);
+					} else {
+						console.error(`Image not found: ${imgPath}`);
 					}
 				}
 		}
@@ -59,6 +64,8 @@ export function activate(context: vscode.ExtensionContext) {
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
   context.subscriptions.push(onKeystroke);
+
+	context.subscriptions.push(parse_command);
 }
 
 exports.activate = activate;
