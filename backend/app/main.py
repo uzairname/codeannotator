@@ -103,13 +103,15 @@ async def get_links(userID: str, project: str, file: str, chunk: str, response: 
 
     project = project.to_dict()
     if 'links' not in project:
-        return [] 
+        return []
 
+    print(project['links'], file)
     if file not in project['links']:
         return []
 
     if chunk not in project['links'][file]:
         return []
+    print(project)
     return project['links'][file][chunk]
 
 class CursorRequest(BaseModel):
