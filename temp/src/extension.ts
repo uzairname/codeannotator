@@ -154,7 +154,7 @@ export async function getThumbnail(url: string): Promise<string | undefined> {
 		const buffer = await response.buffer();
 		await browser.close();
 
-		return 'data:image/png;base64,' + buffer.toString('base64');
+		return 'data:image/*;base64,' + buffer.toString('base64');
     } catch (error) {
         console.error('Error retrieving thumbnail:', error);
         return undefined;
@@ -225,6 +225,9 @@ export function activate(context: vscode.ExtensionContext) {
         const r = await getLinks(hashChunk(getChunk(document.getText(), position.line)));
         const urls: string[] = (await r.json()) as string[];
 
+		let chunk = getChunk(document.getText(), position.line);
+		highlightCodeChunk(chunk.metadata.start, chunk.metadata.end + 1, decorationType);
+
 		if (urls.length == 0){
 			let markdownContent = [
 				'### No Linked Pages'
@@ -235,7 +238,8 @@ export function activate(context: vscode.ExtensionContext) {
 			return new vscode.Hover(md);
 		}
 		else{
-			let thumbnailDataPromise = getThumbnail(urls[0]);
+			let thumbnailDataPromise = getThumbnail(urls[urls.length -1]);
+			const url = new URL(urls[urls.length -1]);
 
 			return thumbnailDataPromise.then((thumbnailData: string | undefined) =>
 						{
@@ -244,15 +248,16 @@ export function activate(context: vscode.ExtensionContext) {
 							{
 								console.log(thumbnailData);
 								markdownContent = [
-									`### ${urls[0]}`,
+									`### ${urls[urls.length - 1]}`,
 									'',
-									`![](${thumbnailData})`,
+									// `![](${thumbnailData})`,
+									`![](https://${url.hostname}/favicon.ico)`,
 									'',
 									'### Other Links',
 									''
 								].join('\n');
 								
-								for (let i = 1; i < urls.length; i++)
+								for (let i = 0; i < urls.length -1; i++)
 								{
 									markdownContent += `\n\n- ${urls[i]}`;
 								}

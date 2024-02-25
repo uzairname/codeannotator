@@ -50,7 +50,7 @@ export function fullScan(context: ExtensionContext) {
 
   removeAllHighlights();
   updateAllHashes(uniq);
-  highlightAllChunks();
+  // highlightAllChunks();
 }
 
 export function onChangeDiagnostics(e: DiagnosticChangeEvent) {
@@ -154,7 +154,7 @@ function handleDocumentChange(docText: string, line: number) {
     currentContext!.globalState.update(`line:${i}`, newHash);
   }
   removeAllHighlights();
-  highlightAllChunks();
+  // highlightAllChunks();
 }
 
 export function getChunk(text: string, line: number): Chunk {
