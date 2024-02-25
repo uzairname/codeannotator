@@ -48,6 +48,7 @@ export function fullScan(context: ExtensionContext) {
     context.globalState.update(`line:${i}`, hash);
   }
 
+  removeAllHighlights();
   updateAllHashes(uniq);
   highlightAllChunks();
 }
@@ -125,6 +126,7 @@ function removeAllHighlights() {
     for(let i = 0;i<activeDecorations.length;i++){
       editor.setDecorations(activeDecorations[i], []);
     }
+    activeDecorations = [];
 	}else {
     console.log("no active code editor");
   }
@@ -243,7 +245,7 @@ export function getProjectPath(): string {
 }
 
 export function getFilePath(d: TextDocument | undefined = undefined): string {
-  if(d == undefined) return currentFilePath ?? "";
+  if(d == undefined) d = window.activeTextEditor!.document;
   currentFilePath = (d.uri.path.split(getProjectPath()))[1];
   return currentFilePath;
 }

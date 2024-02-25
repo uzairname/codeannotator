@@ -44,3 +44,16 @@ export function updateWiki(wiki: any) {
   })
   .then((response) => console.log(response.status));
 }
+
+export async function getLinks(chunk: string) {
+  const project = hashString(getProjectPath());
+  const file = hashString(getFilePath());
+  console.log(`Project: ${project}`);
+  console.log(`File: ${file}`);
+  return await fetch(API + `/links?userID=${USERID}&project=${hashString(getProjectPath())}&file=${hashString(getFilePath())}&chunk=${chunk}`, {
+    method: "GET", 
+    headers: {
+      "Content-type": "application/json; charset=UTF-8"
+    }
+  })
+}
