@@ -73,7 +73,7 @@ export function generateHtmlContent(workspaceFolder: string) {
 
 		<h1 style="text-align: center; margin-top: 20px;">Project Wiki</h1>
 		<div id="wiki"></div>
-		<div id="graph" style="min-width: 100%; min-height: 100vh;"></div>
+		<div id="graph" style="min-width: 100vw; min-height: 100vh;"></div>
 
     <script>
 
