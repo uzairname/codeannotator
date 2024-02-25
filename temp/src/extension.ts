@@ -34,7 +34,7 @@ export async function generateHtmlContent(workspaceFolder: string) {
 	const fileContent = fs.readFileSync(`${workspaceFolder}/graph.json`, 'utf-8');
 	const jsonData = JSON.parse(fileContent);
 
-	const fileContent2 = fs.readFileSync(`${workspaceFolder}/sample.json`, 'utf-8');
+	const fileContent2 = fs.readFileSync(`${workspaceFolder}/wiki.json`, 'utf-8');
 	const jsonData2 = JSON.parse(fileContent2);
 
 	return `
