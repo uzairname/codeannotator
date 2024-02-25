@@ -1,4 +1,4 @@
-# FAE: Accelerated Development 
+![Logo](https://github.com/uzairname/codeannotator/blob/main/media/fae_banner.png)
 
 FAE is a VSCode extension with a companion Chrome extension that tracks your browsing history and links it to your codebase, so the next time you need to look up past urls and relevant documentations, you can do it directly from the specific part of your code in the IDE. It also comes with a handy dashboard that tracks your time spent in the editor live, and has an auto generated Wiki of your codebase with an interactive file dependency network visualization. Additionally, annotated links come with an in-IDE hover URL preview feature. 
 
