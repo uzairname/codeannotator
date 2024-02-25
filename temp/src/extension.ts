@@ -10,7 +10,7 @@ import * as puppeteer from 'puppeteer';
 import exp from 'constants';
 import { create_graph_cmd } from './wiki/wiki_python';
 import os from 'os';
-import { updateCursor } from './api';
+import { updateCursor, getLinks } from './api';
 
 // Define a global variable to store the decoration type
 let decorationType = vscode.window.createTextEditorDecorationType({
@@ -212,85 +212,47 @@ export function activate(context: vscode.ExtensionContext) {
 	// Hover Provider
 	//
 	vscode.languages.registerHoverProvider('python', {
-		provideHover(document, position, token)
+		async provideHover(document, position, token)
 		{
 			const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
 
-
 			if(workspaceFolder)
 			{
-				// GET chunk id, start, end here
-				let chunk_id = 2;
-				let start_id = 2;
-				let end_id = 8;
-				if (position.line >= start_id && position.line <= end_id)
-				{
-					console.log(position.line);
+        const r = await getLinks(hashChunk(getChunk(document.getText(), position.line)));
+        const urls: string[] = (await r.json()) as string[];
+        let markdownContent = [
+          '### No Linked Pages'
+        ];
+        if(urls.length > 0) {
+          markdownContent = [	
+            '### Linked Pages',
+          ];
 
-					//highlightCodeChunk(start_id, end_id, decorationType);
-	
-					// GET URL for associated chunk here
-					let urls = ["https://github.com/uzairname/codeannotator", "https://google.com", "https://youtube.com"];
-					let thumbnailDataPromise = getThumbnail(urls[0]);
-					let markdownContent = '';
-					let url2 = "https://google.com";
-					let url3 = "https://youtube.com";
-		
-					return thumbnailDataPromise.then((thumbnailData: string | undefined) =>
-					{
-						if(thumbnailData)
-						{
-							console.log(thumbnailData);
-	
-							markdownContent = [
-								`### ${urls[0]}`,
-								'',
-								`![](${thumbnailData})`,
-								'',
-								'### Other Links',
-								`${url2}`,
-								'',
-								`${url3}`,
-								'### Suggested Documentation',
-								// `[Visit URL](${url})`
-							].join('\n');
+          for (let i = 0; i < urls.length; i++) {
+            markdownContent.push(`- ${urls[i]}`);
+          }
+        }
+				
 
-							for (let i = 1; i < urls.length; i++)
-							{
-								markdownContent += `\n-${urls[i]}`;
-							}
-	
-						}
-
-						const md = new vscode.MarkdownString(markdownContent, true);
-						md.isTrusted = true;
-						console.log(md);
-						return new vscode.Hover(md);
-					});
-
-				}
-				else{
-					const editor = vscode.window.activeTextEditor;
-
-					if(editor){
-						editor.setDecorations(decorationType, []);
-					}
-
-					return {
-						contents: ['Default']
-					};
-				}
+        const md = new vscode.MarkdownString(markdownContent.join('\n'), true);
+        md.isTrusted = true;
+        return new vscode.Hover(md);
 			}
 		}
 	});
 	// context.subscriptions.push(disposable);
-  let onDiagnostics = vscode.languages.onDidChangeDiagnostics(onChangeDiagnostics); 
+  let onDiagnostics = vscode.languages.onDidChangeDiagnostics(onChangeDiagnostics);
+  let onKeystroke = vscode.workspace.onDidChangeTextDocument((e: vscode.TextDocumentChangeEvent) => {
+    const text = JSON.stringify(e.contentChanges[0].text);
+    //if(text && text[0] == '\n') fullScan(context);
+  });
   fullScan(context);
 
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
 	context.subscriptions.push(onDiagnostics);
+  context.subscriptions.push(onKeystroke);
 
 	//
 	// WebView for productivity statistics
