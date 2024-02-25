@@ -24,7 +24,7 @@ function runNpxCommand(command: string, args = [], options = {}) {
 }
 
 
-export let generate_wiki: vscode.Disposable = vscode.commands.registerCommand('temp.wiki', (args) => {
+export let javascript_wiki: vscode.Disposable = vscode.commands.registerCommand('temp.wiki', (args) => {
 
   const openFilePath = vscode.window.activeTextEditor?.document.fileName;
 
@@ -44,7 +44,9 @@ export let generate_wiki: vscode.Disposable = vscode.commands.registerCommand('t
     }
     console.log(`stdout: ${stdout}`);
     console.error(`stderr: ${stderr}`);
+
   });
+  console.log("done")
 
 
 });
