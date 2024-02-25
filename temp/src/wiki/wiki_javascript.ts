@@ -78,7 +78,7 @@ export let generate_wiki: vscode.Disposable = vscode.commands.registerCommand('t
   // get OPENAI_API_KEY from .env
   const OPENAI_API_KEY = dotenv.parse(env).OPENAI_API_KEY;
 
-  const file_summary_json: {[key: string]: any} = {};
+  let file_summary_json: {[key: string]: any} = {};
     
   const keys_subset: typeof keys = keys.sort(() => Math.random() - Math.random()).slice(0, 10);
 
@@ -94,7 +94,11 @@ export let generate_wiki: vscode.Disposable = vscode.commands.registerCommand('t
   const project_summary = await summarizeProject(file_summary_json, OPENAI_API_KEY);
 
   // save project_summary to file
-  file_summary_json['project_summary'] = project_summary;
+
+  file_summary_json = {
+    project_summary,
+    ...file_summary_json
+  };
 
   fs.writeFileSync
   (

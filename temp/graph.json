@@ -1,0 +1,20 @@
+{
+  "api.ts": [
+    "chunk-algo.ts"
+  ],
+  "chunk-algo.ts": [
+    "api.ts",
+    "extension.ts"
+  ],
+  "extension.ts": [
+    "api.ts",
+    "chunk-algo.ts",
+    "wiki/wiki_javascript.ts",
+    "wiki/wiki_python.ts"
+  ],
+  "wiki/code_describer.d.ts": [],
+  "wiki/wiki_javascript.ts": [
+    "wiki/code_describer.d.ts"
+  ],
+  "wiki/wiki_python.ts": []
+}
