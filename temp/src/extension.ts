@@ -101,6 +101,7 @@ export async function generateHtmlContent(workspaceFolder: string) {
 		const container = document.getElementById('graph');
 		const data = { nodes: nodes, edges: edges };
 		var options = {
+			layout: { randomSeed: 2 },
 			width: (window.innerWidth - 25) + "px",
 					height: (window.innerHeight - 75) + "px",
 			nodes: 
