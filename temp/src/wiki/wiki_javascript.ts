@@ -81,10 +81,10 @@ export let generate_wiki: vscode.Disposable = vscode.commands.registerCommand('t
 
   const file_summary_json: {[key: string]: any} = {};
     
-  for (const relative_path of keys.slice(0, 1)) {
+  for (const relative_path of keys.slice(0, 11)) {
     console.log("summarizing", relative_path);
     const absolute_path = resolveAbsolutePath(openFilePath, relative_path);
-    const summary = await summarizeFile(absolute_path, OPENAI_API_KEY);
+    const summary = await summarizeFile(absolute_path, graph_json, OPENAI_API_KEY);
     const file_name = path.basename(absolute_path);
     file_summary_json[relative_path] = summary;
   }
