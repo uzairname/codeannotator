@@ -37,6 +37,7 @@ export function generateHtmlContent(workspaceFolder: string) {
 	const jsonData2 = JSON.parse(fileContent2);
 
 	const start_time = new Date();
+	const start_time_string = start_time.toISOString();
 
 	return `
 	<!DOCTYPE html>
@@ -57,18 +58,15 @@ export function generateHtmlContent(workspaceFolder: string) {
 		</div>
 		<div id="time" style="display: flex; flex-direction: row; flex-wrap: nowrap; min-width: 100%; padding: auto; margin: auto; align-items: center; justify-content: center; border-style: solid; padding: auto; border-radius: 5px;">
 			<div style="display: flex; margin: auto; flex-direction: column; justify-content: center; align-items: center;">
-				<h1 id="hour">${hours} :</h1>
-				<h1 id="hoursDisplay">${hours} :</h1>
+				<h1 id="hour">${hours}</h1>
 				HOURS
 			</div>
 			<div style="display: flex; margin: auto; flex-direction: column; justify-content: center; align-items: center;"">
-				<h1 id="min">${minutes} :</h1>
-				<h1 id="minutesDisplay">${minutes} :</h1>
+				<h1 id="min">${minutes}</h1>
 				MINUTES
 			</div>
 			<div style="display: flex; margin: auto; flex-direction: column; justify-content: center; align-items: center;"">
 				<h1 id="sec">${seconds}</h1>
-				<h1 id="secondsDisplay">${seconds}</h1>
 				SECONDS
 			</div>
 		</div>
@@ -117,16 +115,22 @@ export function generateHtmlContent(workspaceFolder: string) {
 	
 		const network = new vis.Network(container, data, options);
 
-
 			setInterval(() => {
-				const time = new Date() - new Date('${start_time}');
-				const hours = time.getHours();
-				const minutes = time.getMinutes();
-				const seconds = time.getSeconds();
+				try {
 
-				document.getElementById('hoursDisplay').innerText = hours + ' :';
-				document.getElementById('minutesDisplay').innerText = minutes + ' :';
-				document.getElementById('secondsDisplay').innerText = seconds;
+					const time_diff = new Date() - new Date('${start_time_string}');
+					
+					const hours = Math.floor(time_diff / 3600000);
+					const minutes = Math.floor((time_diff % 3600000) / 60000);
+					const seconds = Math.floor((time_diff % 60000) / 1000);
+	
+					document.getElementById('hour').innerText = hours;
+					document.getElementById('min').innerText = minutes;
+					document.getElementById('sec').innerText = seconds;
+
+				} catch (e) {
+					document.getElementById('hour').innerText = e.message;
+				}
 
 			}, 1000);
 
@@ -287,7 +291,7 @@ export function activate(context: vscode.ExtensionContext) {
 		);
 
 		panel.webview.html = generateHtmlContent(getWorkspaceFolderPath()!);
-
+		console.log(panel.webview.html);
 	
 	}
 	));
