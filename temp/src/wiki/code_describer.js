@@ -4,24 +4,31 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const openai = new OpenAI({
+export async function summarizeFile(path) {
+  const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
   });
+  const file_text = fs.readFileSync(path, 'utf8');
+  const prompt = `\`\`\`\n${file_text}\n\`\`\`\nI need to document my code. Write a concise description of the purpose of this file.`;
+  const summary = await openai.chat.completions.create({
+    messages: [
+      {"role": "system", "content": "You are a helpful assistant."},
+      {"role": "user", "content": prompt},
+    ],
+    model: "gpt-3.5-turbo",
+  });
+  return summary.choices[0];
+}
 
-  /**
-   * [
-    'file-FzBD8uH9Tbf27juxpxi1rcL4',
-    'file-b2ZrCMjgpuKaPCQh2VVRsCY6',
-    'file-zOJtG5zjndSKyiw2Xc5A6qQP',
-    'file-t49vXI5JxQtOfKnh5vZKNvtF',
-    'file-XMAKWZsswg84m79CFisK9yQ8',
-    'file-urXCuvDG3QkjXG3MKboznyv1',
-    'file-XwEoBnwjdGslAefpDRPuSkNd',
-    'file-jKfcBeMihnZcOsvK851w1YQ3'
-  ],
-  */
 
-async function main() {
+
+
+
+async function main(path) {
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+    
     // Upload the file to OpenAI
 
     const Assistant_ID = "asst_86lLEPIAipeTG1ywPrtfXt0O";
@@ -30,7 +37,7 @@ async function main() {
     const files = await openai.beta.assistants.files.list(Assistant_ID);
     for (const file of files.data) {
       await openai.beta.assistants.files.del(Assistant_ID, file.id);
-      await openai.files.del(file.id)
+      await openai.files.del(file.id);
     }
 
     // Create an assistant
@@ -123,4 +130,4 @@ async function main() {
   retrieveRun();
 }
 
-main();
+// main();

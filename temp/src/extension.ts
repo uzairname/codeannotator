@@ -34,7 +34,7 @@ export async function generateHtmlContent(workspaceFolder: string) {
 	const fileContent = fs.readFileSync(`${workspaceFolder}/graph.json`, 'utf-8');
 	const jsonData = JSON.parse(fileContent);
 
-	const fileContent2 = fs.readFileSync(`${workspaceFolder}/sample.json`, 'utf-8');
+	const fileContent2 = fs.readFileSync(`${workspaceFolder}/wiki.json`, 'utf-8');
 	const jsonData2 = JSON.parse(fileContent2);
 
 	return `
@@ -49,7 +49,11 @@ export async function generateHtmlContent(workspaceFolder: string) {
 		<title>User Stats</title>
 	</head>
 	<body style="background-color: #12011f; color: #eed9ff;">
-		<h1 style="text-align: center; color: white;">Welcome <span style="color: #d876dd;"> ${username} </span>!</h1>
+		<div style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
+			<a href="https://ibb.co/7G1hffm"><img src="https://i.ibb.co/mHcpjjW/fae.png" alt="fae" style="width: 50px; height: 50px; margin-right: 25px;"></a>
+			<h1 style="text-align: center; color: white;">Welcome <span style="color: #d876dd;"> ${username} </span>!</h1>
+
+		</div>
 		<div id="time" style="display: flex; flex-direction: row; flex-wrap: nowrap; min-width: 100%; padding: auto; margin: auto; align-items: center; justify-content: center; border-style: solid; padding: auto; border-radius: 5px;">
 			<div style="display: flex; margin: auto; flex-direction: column; justify-content: center; align-items: center;">
 				<h1>${hours} :</h1>
