@@ -220,23 +220,46 @@ export function activate(context: vscode.ExtensionContext) {
 			{
         const r = await getLinks(hashChunk(getChunk(document.getText(), position.line)));
         const urls: string[] = (await r.json()) as string[];
-        let markdownContent = [
-          '### No Linked Pages'
-        ];
-        if(urls.length > 0) {
-          markdownContent = [	
-            '### Linked Pages',
-          ];
 
-          for (let i = 0; i < urls.length; i++) {
-            markdownContent.push(`- ${urls[i]}`);
-          }
-        }
-				
+		if (urls.length == 0){
+			let markdownContent = [
+				'### No Linked Pages'
+			  ];
 
-        const md = new vscode.MarkdownString(markdownContent.join('\n'), true);
-        md.isTrusted = true;
-        return new vscode.Hover(md);
+			  const md = new vscode.MarkdownString(markdownContent.join('\n'), true);
+			md.isTrusted = true;
+			return new vscode.Hover(md);
+		}
+		else{
+			let thumbnailDataPromise = getThumbnail(urls[0]);
+
+			return thumbnailDataPromise.then((thumbnailData: string | undefined) =>
+						{
+							let markdownContent = '';
+							if(thumbnailData)
+							{
+								console.log(thumbnailData);
+								markdownContent = [
+									`### ${urls[0]}`,
+									'',
+									`![](${thumbnailData})`,
+									'',
+									'### Other Links',
+									''
+								].join('\n');
+								
+								for (let i = 1; i < urls.length; i++)
+								{
+									markdownContent += `\n\n- ${urls[i]}`;
+								}
+		
+							}
+							const md = new vscode.MarkdownString(markdownContent, true);
+							md.isTrusted = true;
+							console.log(md);
+							return new vscode.Hover(md);
+						});
+				}
 			}
 		}
 	});
