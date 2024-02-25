@@ -25,11 +25,10 @@ let minutes = 0;
 let seconds = 0;
 let startTime: Date | undefined;
 let intervalId: NodeJS.Timeout | undefined;
-
 const username = os.userInfo().username;
 
 // Generate the HTML content for the webview
-export async function generateHtmlContent(workspaceFolder: string) {
+export function generateHtmlContent(workspaceFolder: string) {
 
 	const fileContent = fs.readFileSync(`${workspaceFolder}/graph.json`, 'utf-8');
 	const jsonData = JSON.parse(fileContent);
@@ -56,15 +55,15 @@ export async function generateHtmlContent(workspaceFolder: string) {
 		</div>
 		<div id="time" style="display: flex; flex-direction: row; flex-wrap: nowrap; min-width: 100%; padding: auto; margin: auto; align-items: center; justify-content: center; border-style: solid; padding: auto; border-radius: 5px;">
 			<div style="display: flex; margin: auto; flex-direction: column; justify-content: center; align-items: center;">
-				<h1>${hours} :</h1>
+				<h1 id="hour">${hours} :</h1>
 				HOURS
 			</div>
 			<div style="display: flex; margin: auto; flex-direction: column; justify-content: center; align-items: center;"">
-				<h1>${minutes} :</h1>
+				<h1 id="min">${minutes} :</h1>
 				MINUTES
 			</div>
 			<div style="display: flex; margin: auto; flex-direction: column; justify-content: center; align-items: center;"">
-				<h1>${seconds}</h1>
+				<h1 id="sec">${seconds}</h1>
 				SECONDS
 			</div>
 		</div>
@@ -86,32 +85,33 @@ export async function generateHtmlContent(workspaceFolder: string) {
 		wikiContent += '<p>' + jsonData2[key] + '</p>';
 	});
 	wiki.innerHTML = wikiContent;
-	
 
-			// Create nodes and edges arrays
-			const nodes = Object.keys(jsonData).map(node => ({ id: node, label: node, size: 150}));
-			const edges = [];
-			Object.keys(jsonData).forEach(node => {
-				jsonData[node].forEach(neighbor => {
-					edges.push({ from: node, to: neighbor, length: 200, color: {highlight: '#eed9ff'} });
-				});
-			});
+	// Create nodes and edges arrays
+	const nodes = Object.keys(jsonData).map(node => ({ id: node, label: node, size: 150}));
+	const edges = [];
+	Object.keys(jsonData).forEach(node => {
+		jsonData[node].forEach(neighbor => {
+			edges.push({ from: node, to: neighbor, length: 200, color: {highlight: '#eed9ff'} });
+		});
+	});
 
-		// Create a network
-		const container = document.getElementById('graph');
-		const data = { nodes: nodes, edges: edges };
-		var options = {
-			layout: { randomSeed: 2 },
-			width: (window.innerWidth - 25) + "px",
-					height: (window.innerHeight - 75) + "px",
-			nodes: 
-			{
-				color:{
-					background: '#eed9ff',
-				}
+	// Create a network
+	const container = document.getElementById('graph');
+	const data = { nodes: nodes, edges: edges };
+	var options = {
+		layout: { randomSeed: 2 },
+		width: (window.innerWidth - 25) + "px",
+				height: (window.innerHeight - 75) + "px",
+		nodes: 
+		{
+			color:{
+				background: '#eed9ff',
 			}
-		};
-		const network = new vis.Network(container, data, options);
+		}
+	};
+	
+	const network = new vis.Network(container, data, options);
+
     </script>
 	</body>
 	</html>
@@ -295,7 +295,7 @@ export function activate(context: vscode.ExtensionContext) {
 	statusBarItem.show();
 
 	// Register a command handler for opening the webview
-	context.subscriptions.push(vscode.commands.registerCommand('extension.openWebview', async () => {
+	context.subscriptions.push(vscode.commands.registerCommand('extension.openWebview', () => {
 		  // Create and show a new webview panel
 		  const panel = vscode.window.createWebviewPanel(
 			'customWebview', // Unique ID for the webview
@@ -306,10 +306,9 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		);
 
-		setInterval(async () => {
-			panel.webview.html = await generateHtmlContent(getWorkspaceFolderPath()!);
-		}, 1000);
-	
+		setInterval( () => {
+			panel.webview.html = generateHtmlContent(getWorkspaceFolderPath()!);
+		}, 1000);	
 	}
 	));
 
