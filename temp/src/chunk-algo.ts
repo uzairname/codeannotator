@@ -42,7 +42,6 @@ export function fullScan(context: ExtensionContext) {
     currentContext!.globalState.update(`hash:${hash}`, `${chunk.metadata.start}:${chunk.metadata.end + 1}`);
     uniq.add(hash);
     context.globalState.update(`line:${i}`, hash);
-    console.log(`line:${i} -> ${hash}`);
   }
 
   updateAllHashes(uniq);
@@ -144,7 +143,6 @@ function handleDocumentChange(docText: string, line: number) {
   currentContext!.globalState.update(`hash:${newHash}`, `${chunk.metadata.start}:${chunk.metadata.end + 1}`);
   for(let i = chunk.metadata.start;i<=chunk.metadata.end;i++){
     currentContext!.globalState.update(`line:${i}`, newHash);
-    console.log(`line:${i} -> ${newHash}`);
   }
   removeAllHighlights();
   highlightAllChunks();
