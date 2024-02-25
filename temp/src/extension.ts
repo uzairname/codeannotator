@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import fs from 'fs';
 import path from 'path';
 
-import { onChangeDiagnostics, fullScan } from './chunk-algo';
+import { onChangeDiagnostics, fullScan, getChunk, hashChunk, hashString, getFilePath, getProjectPath } from './chunk-algo';
 import { generate_wiki } from './wiki/wiki_javascript';
 import * as puppeteer from 'puppeteer';
 import exp from 'constants';
@@ -182,7 +182,6 @@ export function activate(context: vscode.ExtensionContext) {
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "temp" is now active!.');
-  updateCursor();
 
 	const supportedLanguages = ['python', 'javascript'];
 
@@ -327,7 +326,7 @@ export function activate(context: vscode.ExtensionContext) {
 			minutes = lminutes;
 			seconds = lseconds;
 
-			console.log(hours, minutes, seconds);
+			//console.log(hours, minutes, seconds);
         }
 	}
 
@@ -364,6 +363,16 @@ export function activate(context: vscode.ExtensionContext) {
 					stopSessionTimer();
 			}
 	}));
+
+
+  vscode.window.onDidChangeTextEditorSelection((e: vscode.TextEditorSelectionChangeEvent) => {
+    const docText = e.textEditor.document.getText();
+    const line = e.selections[0].active.line;
+    const chunk = getChunk(docText, line);
+    const projectPath = getProjectPath();
+    const filePath = getFilePath(e.textEditor.document);
+    updateCursor(hashChunk(chunk), hashString(projectPath), hashString(filePath));
+  });
 
 
 	context.subscriptions.push(create_graph_cmd);
