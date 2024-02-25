@@ -7,12 +7,12 @@ import { line } from 'd3';
 type ChunkMetadata = {
   start: number
   end: number
-}
+};
 
 type Chunk = {
   metadata: ChunkMetadata
   lines: string[]
-}
+};
 
 let activeDecorations: TextEditorDecorationType[] = [];
 

@@ -9,6 +9,7 @@ import { generate_wiki } from './wiki/wiki_javascript';
 import * as puppeteer from 'puppeteer';
 import exp from 'constants';
 import { create_graph_cmd } from './wiki/wiki_python';
+import os from 'os';
 
 // Define a global variable to store the decoration type
 let decorationType = vscode.window.createTextEditorDecorationType({
@@ -24,12 +25,16 @@ let seconds = 0;
 let startTime: Date | undefined;
 let intervalId: NodeJS.Timeout | undefined;
 
+const username = os.userInfo().username;
 
 // Generate the HTML content for the webview
 export async function generateHtmlContent(workspaceFolder: string) {
 
 	const fileContent = fs.readFileSync(`${workspaceFolder}/graph.json`, 'utf-8');
 	const jsonData = JSON.parse(fileContent);
+
+	const fileContent2 = fs.readFileSync(`${workspaceFolder}/sample.json`, 'utf-8');
+	const jsonData2 = JSON.parse(fileContent2);
 
 	return `
 	<!DOCTYPE html>
@@ -43,6 +48,7 @@ export async function generateHtmlContent(workspaceFolder: string) {
 		<title>User Stats</title>
 	</head>
 	<body style="background-color: #12011f; color: #eed9ff;">
+		<h1 style="text-align: center; color: white;">Welcome <span style="color: #d876dd;"> ${username} </span>!</h1>
 		<div id="time" style="display: flex; flex-direction: row; flex-wrap: nowrap; min-width: 100%; padding: auto; margin: auto; align-items: center; justify-content: center; border-style: solid; padding: auto; border-radius: 5px;">
 			<div style="display: flex; margin: auto; flex-direction: column; justify-content: center; align-items: center;">
 				<h1>${hours} :</h1>
@@ -58,21 +64,33 @@ export async function generateHtmlContent(workspaceFolder: string) {
 			</div>
 		</div>
 
-		<div id="graph" style="min-width: 100%; border: solid; min-height: 100vh;"></div>
-		<div id="test"></div>
+		<h1 style="text-align: center; margin-top: 20px;">Project Wiki</h1>
+		<div id="wiki"></div>
+		<div id="graph" style="min-width: 100%; min-height: 100vh;"></div>
 
     <script>
 
 	jsonData = ${JSON.stringify(jsonData)};
+	jsonData2 = ${JSON.stringify(jsonData2)};
 
-		// Create nodes and edges arrays
-		const nodes = Object.keys(jsonData).map(node => ({ id: node, label: node, size: 150}));
-		const edges = [];
-		Object.keys(jsonData).forEach(node => {
-			jsonData[node].forEach(neighbor => {
-				edges.push({ from: node, to: neighbor, length: 200, color: {highlight: '#eed9ff'} });
+	// Create the wiki
+	const wiki = document.getElementById('wiki');
+	let wikiContent = '';
+	Object.keys(jsonData2).forEach(key => {
+		wikiContent += '<h3>' + key + '</h3>';
+		wikiContent += '<p>' + jsonData2[key] + '</p>';
+	});
+	wiki.innerHTML = wikiContent;
+	
+
+			// Create nodes and edges arrays
+			const nodes = Object.keys(jsonData).map(node => ({ id: node, label: node, size: 150}));
+			const edges = [];
+			Object.keys(jsonData).forEach(node => {
+				jsonData[node].forEach(neighbor => {
+					edges.push({ from: node, to: neighbor, length: 200, color: {highlight: '#eed9ff'} });
+				});
 			});
-		});
 
 		// Create a network
 		const container = document.getElementById('graph');
@@ -188,9 +206,11 @@ export function activate(context: vscode.ExtensionContext) {
 					//highlightCodeChunk(start_id, end_id, decorationType);
 	
 					// GET URL for associated chunk here
-					let url = "https://web-highlights.com/blog/turn-your-website-into-a-beautiful-thumbnail-link-preview/";
-					let thumbnailDataPromise = getThumbnail(url);
+					let urls = ["https://github.com/uzairname/codeannotator", "https://google.com", "https://youtube.com"];
+					let thumbnailDataPromise = getThumbnail(urls[0]);
 					let markdownContent = '';
+					let url2 = "https://google.com";
+					let url3 = "https://youtube.com";
 		
 					return thumbnailDataPromise.then((thumbnailData: string | undefined) =>
 					{
@@ -199,12 +219,22 @@ export function activate(context: vscode.ExtensionContext) {
 							console.log(thumbnailData);
 	
 							markdownContent = [
-								'## URL Preview',
+								`### ${urls[0]}`,
 								'',
 								`![](${thumbnailData})`,
 								'',
-								`[Visit URL](${url})`
+								'### Other Links',
+								`${url2}`,
+								'',
+								`${url3}`,
+								'### Suggested Documentation',
+								// `[Visit URL](${url})`
 							].join('\n');
+
+							for (let i = 1; i < urls.length; i++)
+							{
+								markdownContent += `\n-${urls[i]}`;
+							}
 	
 						}
 
@@ -270,7 +300,9 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		);
 
-		panel.webview.html = await generateHtmlContent(getWorkspaceFolderPath()!);
+		setInterval(async () => {
+			panel.webview.html = await generateHtmlContent(getWorkspaceFolderPath()!);
+		}, 1000);
 	
 	}
 	));
