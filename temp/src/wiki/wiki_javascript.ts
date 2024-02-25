@@ -1,31 +1,42 @@
 import * as vscode from 'vscode';
-import fs from 'fs';
+import fs, { read } from 'fs';
 import {exec, spawn} from 'child_process';
 import JSZip from 'jszip';
 import madge from 'madge';
 import * as d3 from 'd3';
+import path from 'path';
+import { summarizeFile } from "./code_describer";
+import dotenv from 'dotenv';
 
 
-function runNpxCommand(command: string, args = [], options = {}) {
-  return new Promise((resolve, reject) => {
-    const npxProcess = spawn('npx', command.split(' ').concat(args), options);
 
-    let output = '';
-    let errorOutput = '';
+// function runNpxCommand(command: string, args = [], options = {}) {
+//   return new Promise((resolve, reject) => {
+//     const npxProcess = spawn('npx', command.split(' ').concat(args), options);
 
-    npxProcess.stdout.on('data', (data) => output += data.toString());
-    npxProcess.stderr.on('data', (data) => errorOutput += data.toString());
+//     let output = '';
+//     let errorOutput = '';
 
-    npxProcess.on('close', (code) => {
-      if (code === 0) {
-        resolve(output);
-      } else {
-        reject(new Error(`npx command exited with code ${code}:\n${errorOutput}`));
-      }
-    });
-  });
+//     npxProcess.stdout.on('data', (data) => output += data.toString());
+//     npxProcess.stderr.on('data', (data) => errorOutput += data.toString());
+
+//     npxProcess.on('close', (code) => {
+//       if (code === 0) {
+//         resolve(output);
+//       } else {
+//         reject(new Error(`npx command exited with code ${code}:\n${errorOutput}`));
+//       }
+//     });
+//   });
+// }
+
+
+function resolveAbsolutePath(pathToA: string, relativePathFromA: string) {
+  const absoluteDirectoryOfA = path.dirname(pathToA);
+  const absolutePathToB = path.resolve(absoluteDirectoryOfA, relativePathFromA);
+
+  return absolutePathToB;
 }
-
 
 interface DependencyGraphData {
   nodes: { id: string }[];
@@ -61,6 +72,30 @@ export let generate_wiki: vscode.Disposable = vscode.commands.registerCommand('t
     JSON.stringify(graph_json, null, 2)
   );
 
+  const keys = Object.keys(graph_json);
+
+
+  const env = fs.readFileSync(`${workspaceFolder}/.env`, 'utf8');
+  // get OPENAI_API_KEY from .env
+  const OPENAI_API_KEY = dotenv.parse(env).OPENAI_API_KEY;
+
+  const file_summary_json: {[key: string]: any} = {};
+    
+  for (const relative_path of keys.slice(0, 11)) {
+    console.log("summarizing", relative_path);
+    const absolute_path = resolveAbsolutePath(openFilePath, relative_path);
+    const summary = await summarizeFile(absolute_path, graph_json, OPENAI_API_KEY);
+    const file_name = path.basename(absolute_path);
+    file_summary_json[relative_path] = summary;
+  }
+  console.log('done summarizing');
+
+  // save file_summary_json to file
+  fs.writeFileSync
+  (
+    `${workspaceFolder}/wiki.json`,
+    JSON.stringify(file_summary_json, null, 2)
+  );
 
 });
 
