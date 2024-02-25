@@ -5,7 +5,7 @@ import JSZip from 'jszip';
 import madge from 'madge';
 import * as d3 from 'd3';
 import path from 'path';
-import { summarizeFile } from "./code_describer";
+import { summarizeFile, summarizeProject } from "./code_describer";
 import dotenv from 'dotenv';
 
 
@@ -74,23 +74,28 @@ export let generate_wiki: vscode.Disposable = vscode.commands.registerCommand('t
 
   const keys = Object.keys(graph_json);
 
-
   const env = fs.readFileSync(`${workspaceFolder}/.env`, 'utf8');
   // get OPENAI_API_KEY from .env
   const OPENAI_API_KEY = dotenv.parse(env).OPENAI_API_KEY;
 
   const file_summary_json: {[key: string]: any} = {};
     
-  for (const relative_path of keys.slice(0, 11)) {
+  const keys_subset: typeof keys = keys.sort(() => Math.random() - Math.random()).slice(0, 10);
+
+  for (const relative_path of keys_subset) {
     console.log("summarizing", relative_path);
     const absolute_path = resolveAbsolutePath(openFilePath, relative_path);
     const summary = await summarizeFile(absolute_path, graph_json, OPENAI_API_KEY);
     const file_name = path.basename(absolute_path);
     file_summary_json[relative_path] = summary;
   }
-  console.log('done summarizing');
+  console.log('done summarizing individual files, now summarizing project...');
 
-  // save file_summary_json to file
+  const project_summary = await summarizeProject(file_summary_json, OPENAI_API_KEY);
+
+  // save project_summary to file
+  file_summary_json['project_summary'] = project_summary;
+
   fs.writeFileSync
   (
     `${workspaceFolder}/wiki.json`,

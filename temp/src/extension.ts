@@ -37,6 +37,8 @@ export async function generateHtmlContent(workspaceFolder: string) {
 	const fileContent2 = fs.readFileSync(`${workspaceFolder}/wiki.json`, 'utf-8');
 	const jsonData2 = JSON.parse(fileContent2);
 
+	const start_time = new Date();
+
 	return `
 	<!DOCTYPE html>
 	<html lang="en">
@@ -56,15 +58,15 @@ export async function generateHtmlContent(workspaceFolder: string) {
 		</div>
 		<div id="time" style="display: flex; flex-direction: row; flex-wrap: nowrap; min-width: 100%; padding: auto; margin: auto; align-items: center; justify-content: center; border-style: solid; padding: auto; border-radius: 5px;">
 			<div style="display: flex; margin: auto; flex-direction: column; justify-content: center; align-items: center;">
-				<h1>${hours} :</h1>
+				<h1 id="hoursDisplay">${hours} :</h1>
 				HOURS
 			</div>
 			<div style="display: flex; margin: auto; flex-direction: column; justify-content: center; align-items: center;"">
-				<h1>${minutes} :</h1>
+				<h1 id="minutesDisplay">${minutes} :</h1>
 				MINUTES
 			</div>
 			<div style="display: flex; margin: auto; flex-direction: column; justify-content: center; align-items: center;"">
-				<h1>${seconds}</h1>
+				<h1 id="secondsDisplay">${seconds}</h1>
 				SECONDS
 			</div>
 		</div>
@@ -75,18 +77,18 @@ export async function generateHtmlContent(workspaceFolder: string) {
 
     <script>
 
-	jsonData = ${JSON.stringify(jsonData)};
-	jsonData2 = ${JSON.stringify(jsonData2)};
+			jsonData = ${JSON.stringify(jsonData)};
+			jsonData2 = ${JSON.stringify(jsonData2)};
 
-	// Create the wiki
-	const wiki = document.getElementById('wiki');
-	let wikiContent = '';
-	Object.keys(jsonData2).forEach(key => {
-		wikiContent += '<h3>' + key + '</h3>';
-		wikiContent += '<p>' + jsonData2[key] + '</p>';
-	});
-	wiki.innerHTML = wikiContent;
-	
+			// Create the wiki
+			const wiki = document.getElementById('wiki');
+			let wikiContent = '';
+			Object.keys(jsonData2).forEach(key => {
+				wikiContent += '<h3>' + key + '</h3>';
+				wikiContent += '<p>' + jsonData2[key] + '</p>';
+			});
+			wiki.innerHTML = wikiContent;
+
 
 			// Create nodes and edges arrays
 			const nodes = Object.keys(jsonData).map(node => ({ id: node, label: node, size: 150}));
@@ -97,21 +99,34 @@ export async function generateHtmlContent(workspaceFolder: string) {
 				});
 			});
 
-		// Create a network
-		const container = document.getElementById('graph');
-		const data = { nodes: nodes, edges: edges };
-		var options = {
-			layout: { randomSeed: 2 },
-			width: (window.innerWidth - 25) + "px",
-					height: (window.innerHeight - 75) + "px",
-			nodes: 
-			{
-				color:{
-					background: '#eed9ff',
+			// Create a network
+			const container = document.getElementById('graph');
+			const data = { nodes: nodes, edges: edges };
+			var options = {
+				layout: { randomSeed: 2 },
+				width: (window.innerWidth - 25) + "px",
+						height: (window.innerHeight - 75) + "px",
+				nodes: 
+				{
+					color:{
+						background: '#eed9ff',
+					}
 				}
-			}
-		};
-		const network = new vis.Network(container, data, options);
+			};
+			const network = new vis.Network(container, data, options);
+
+			setInterval(() => {
+				const time = new Date() - new Date('${start_time}');
+				const hours = time.getHours();
+				const minutes = time.getMinutes();
+				const seconds = time.getSeconds();
+
+				document.getElementById('hoursDisplay').innerText = hours + ' :';
+				document.getElementById('minutesDisplay').innerText = minutes + ' :';
+				document.getElementById('secondsDisplay').innerText = seconds;
+
+			}, 1000);
+
     </script>
 	</body>
 	</html>
@@ -306,9 +321,9 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		);
 
-		setInterval(async () => {
-			panel.webview.html = await generateHtmlContent(getWorkspaceFolderPath()!);
-		}, 1000);
+		panel.webview.html = await generateHtmlContent(getWorkspaceFolderPath()!);
+		// setInterval(async () => {
+		// }, 1000);
 	
 	}
 	));
