@@ -128,8 +128,7 @@ function getWorkspaceFolderPath(): string | undefined {
 }
 
 // Highlights code chunks
-export function highlightCodeChunk(start: number, end: number) {
-
+export function highlightCodeChunk(start: number, end: number, decoration: vscode.TextEditorDecorationType) {
     // Get the active text editor
     const editor = vscode.window.activeTextEditor;
     if (editor) {
@@ -141,9 +140,21 @@ export function highlightCodeChunk(start: number, end: number) {
         const range = new vscode.Range(startPosition, endPosition);
 
         // Apply the decoration to the specified range
-        editor.setDecorations(decorationType, [range]);
+        editor.setDecorations(decoration, [range]);
+    } else {
+      console.log("no active code editor");
     }
 }
+
+export function removeAllHighlights() {
+  const editor = vscode.window.activeTextEditor;
+	if(editor){
+	  editor.setDecorations(decorationType, []);
+	}else {
+    console.log("no active code editor");
+  }
+}
+
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -174,7 +185,7 @@ export function activate(context: vscode.ExtensionContext) {
 				{
 					console.log(position.line);
 
-					highlightCodeChunk(start_id, end_id);
+					//highlightCodeChunk(start_id, end_id, decorationType);
 	
 					// GET URL for associated chunk here
 					let url = "https://web-highlights.com/blog/turn-your-website-into-a-beautiful-thumbnail-link-preview/";
@@ -219,17 +230,13 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 	// context.subscriptions.push(disposable);
-  	let onDiagnostics = vscode.languages.onDidChangeDiagnostics(onChangeDiagnostics);
-
-  let scan = vscode.commands.registerCommand('temp.scan', () => {
-    fullScan();
-  });
+  let onDiagnostics = vscode.languages.onDidChangeDiagnostics(onChangeDiagnostics); 
+  fullScan(context);
 
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
 	context.subscriptions.push(onDiagnostics);
-	context.subscriptions.push(scan);
 
 	//
 	// WebView for productivity statistics
