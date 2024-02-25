@@ -1,8 +1,9 @@
-import { DiagnosticChangeEvent, languages, window, ExtensionContext, OverviewRulerLane, TextEditorDecorationType } from 'vscode';
+import { DiagnosticChangeEvent, languages, window, ExtensionContext, OverviewRulerLane, TextEditorDecorationType, workspace, TextEditor, TextDocument } from 'vscode';
 import { createHash } from 'crypto';
 
 import { highlightCodeChunk } from './extension';
 import { line } from 'd3';
+import { updateChunk } from './api';
 
 type ChunkMetadata = {
   start: number
@@ -17,6 +18,9 @@ type Chunk = {
 let activeDecorations: TextEditorDecorationType[] = [];
 
 let currentContext: ExtensionContext | undefined;
+
+let currentProjectPath: string | undefined;
+let currentFilePath: string | undefined;
 
 function updateAllHashes(allHashes: Set<string>) {
   if(currentContext == undefined){
@@ -141,6 +145,9 @@ function handleDocumentChange(docText: string, line: number) {
   updateAllHashes(all);
   currentContext!.globalState.update(`hash:${oldHash}`, undefined);
   currentContext!.globalState.update(`hash:${newHash}`, `${chunk.metadata.start}:${chunk.metadata.end + 1}`);
+  if(oldHash != newHash){
+    updateChunk(oldHash, newHash);
+  }
   for(let i = chunk.metadata.start;i<=chunk.metadata.end;i++){
     currentContext!.globalState.update(`line:${i}`, newHash);
   }
@@ -148,7 +155,7 @@ function handleDocumentChange(docText: string, line: number) {
   highlightAllChunks();
 }
 
-function getChunk(text: string, line: number): Chunk {
+export function getChunk(text: string, line: number): Chunk {
   const lines = text.split('\n');
   
   var t: number = line;
@@ -222,6 +229,21 @@ function getChunk(text: string, line: number): Chunk {
   return {metadata: {start: t, end: b}, lines: lines.slice(t, b + 1)};
 }
 
-function hashChunk(chunk: Chunk): string {
+export function hashChunk(chunk: Chunk): string {
   return createHash('sha256').update(chunk.lines.join('\n')).digest('hex');
+}
+
+export function hashString(string: string): string {
+  return createHash('sha256').update(string).digest('hex');
+}
+
+export function getProjectPath(): string {
+  currentProjectPath = workspace.workspaceFolders![0].uri.path;
+  return currentProjectPath;
+}
+
+export function getFilePath(d: TextDocument | undefined = undefined): string {
+  if(d == undefined) return currentFilePath ?? "";
+  currentFilePath = (d.uri.path.split(getProjectPath()))[1];
+  return currentFilePath;
 }
