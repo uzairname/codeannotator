@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import fs from 'fs';
 import {exec, spawn} from 'child_process';
+import dotenv from 'dotenv';
 
 
 function runNpxCommand(command: string, args = [], options = {}) {
@@ -46,7 +47,7 @@ export let javascript_wiki: vscode.Disposable = vscode.commands.registerCommand(
     console.error(`stderr: ${stderr}`);
 
   });
-  console.log("done")
+  console.log("done");
 
 
 });

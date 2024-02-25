@@ -4,9 +4,10 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-export async function summarizeFile(path) {
+export async function summarizeFile(path, openai_api_key) {
+  console.log('summarizeFile', path, openai_api_key);
   const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+    apiKey: openai_api_key || process.env.OPENAI_API_KEY,
   });
   const file_text = fs.readFileSync(path, 'utf8');
   const prompt = `\`\`\`\n${file_text}\n\`\`\`\nI need to document my code. Write a concise description of the purpose of this file.`;
@@ -18,7 +19,7 @@ export async function summarizeFile(path) {
     ],
     model: "gpt-3.5-turbo",
   });
-  return summary.choices[0];
+  return summary.choices[0].message.content;
 }
 
 
