@@ -10,6 +10,7 @@ export async function summarizeFile(path) {
   });
   const file_text = fs.readFileSync(path, 'utf8');
   const prompt = `\`\`\`\n${file_text}\n\`\`\`\nI need to document my code. Write a concise description of the purpose of this file.`;
+  console.log(prompt);
   const summary = await openai.chat.completions.create({
     messages: [
       {"role": "system", "content": "You are a helpful assistant."},
